@@ -5,6 +5,8 @@ using UnityEngine;
 public class Behavior : MonoBehaviour
 {
 
+    public int Z = 10;
+
     //The character will activate in the case of a boolean switch
     public bool onSwitch = false;
 

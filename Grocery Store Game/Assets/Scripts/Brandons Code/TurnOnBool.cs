@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class TurnOnBool : MonoBehaviour
 {
+    // creates a object of type Behavior
     Behavior behavior;
 
     private void Start()
