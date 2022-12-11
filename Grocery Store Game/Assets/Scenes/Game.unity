@@ -360,7 +360,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 218247189}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 3.12, y: -5.2, z: -0.03973891}
+  m_LocalPosition: {x: -2.6, y: -1.34, z: -0.03973891}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -401,9 +401,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 2
-  itemsCarrying: 0
+  itemsOnHand: 0
+  ActionWaitTime: 2
+  arrivedAtDestination: 0
+  nearShelf: 0
+  nearPallet: 0
+  active: 0
   target: {fileID: 0}
   shelf: {fileID: 0}
+  pallet: {fileID: 0}
 --- !u!1 &506878843
 GameObject:
   m_ObjectHideFlags: 0

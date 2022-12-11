@@ -8,7 +8,7 @@ public class Pallet : MonoBehaviour
     public void RemoveStock(int amount)
     {
         stock -= amount;
-        print("Item removed from stock");
+        print("Stock removed from Pallet");
     }
 
 }

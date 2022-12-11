@@ -8,12 +8,12 @@ public class Shelf : MonoBehaviour
     public void AddStock(int amount)
     {
         stock += amount;
-        print("Item added to stock");
+        print("Stock added to Shelf");
     }
 
     public void RemoveStock(int amount)
     {
         stock -= amount;
-        print("Item removed from stock");
+        print("Stock removed from Shelf");
     }
 }
