@@ -2,109 +2,82 @@ using UnityEngine;
 
 public class Stocker_Script : MonoBehaviour
 {
-
     // stockers attributes
     [SerializeField] public float speed = 1.0f;
     int stockerCarryAmount = 5; // How many items the stocker can carry/store/grab at once
     public int itemsCarrying = 0;  // The amount of items stocker is currently holding
+    public bool arrivedAtDestination = false;
+    public bool nearShelf = false;
+    public bool nearPallet = false;
+    public bool stocking = false;
 
     // Used for a target. Can either be used to locate a pallet or a shelf.
     // Probably need an array of all shelfs/pallets later down the line.
     public GameObject target;
-    public GameObject shelf; // Used for remembering which shelf to return to.
+    public Shelf shelf;
+    public Pallet pallet;
 
     // distance from target
     float distanceFromTarget;
+    float distanceFromShelf;
+    float distanceFromPallet;
 
     // stock count references
     int palletStock = 0;
     int shelfStock = 0;
+    int MAX = 20;
 
 
     private void Start()
     {
-        // Target shelf
-        TargetShelf();
+        shelf = GameObject.FindGameObjectWithTag("Shelf").GetComponent<Shelf>();
+        pallet = GameObject.FindGameObjectWithTag("Pallet").GetComponent<Pallet>();
     }
 
     void Update()
     {
+        //ALWAYS RUNNING FUNCTIONS:
 
         // WalkToTarget will only work in update function.
-        WalkToTarget();
-
-        // INSIDE UPDATE: *
-
-        // Check Shelf stock
-        // If stock is < MAX
-        // initiate stock process
-
-
-        // POSSIBLY OUTSIDE UPDATE: *
-        // STOCK PROCESS
-
-        // target pallet
-
-        // walk to pallet
-
-        // grab stock from pallet
-
-        // Target shelf
-
-        // Walk to shelf
-
-        // fill stock
-
-        // return and repeat.
-
-
-    }
-
-    //Function to fill stock? - BROKEN ATM
-    private void StockingProcess()
-    {
-
-        // Only when close enough to shelf
-        if (distanceFromTarget <= 0.5f)
-        {
-            // If stock on shelf is less than max:
-            if (CheckShelfStock() < 20)
-            {
-
-                // If stocker does not have any items on hand:
-                if (itemsCarrying == 0)
-                {
-                    // Target Pallet
-                    TargetPallet();
-                    // walk toward the target (pallet)
-                    WalkToTarget();
-
-                    // if he is close enough to the pallet
-                    if (distanceFromTarget <= 0.5f)
-                    {
-                        // get current pallets stock count
-                        CheckPalletStock();
-
-                        // if available stock, grab
-                        if (CheckPalletStock() >= stockerCarryAmount)
-                            GrabStock(stockerCarryAmount);
-                    }
-
-                    // Target Shelf
-                    TargetShelf();
-                    // Walk to target
-                    WalkToTarget();
-                    // Add stock to shelf
-                    AddStock(stockerCarryAmount);
-
-                    Debug.Log(string.Format("The stock is {0}", palletStock));
-                }
-
-
-            }
-
-
+        if (target != null) {
+            WalkToTarget();
         }
+
+        //Always check if near shelf
+        NearShelf();
+
+        //Always check if near pallet
+        NearPallet();
+
+        // CHECKS:
+        if (shelf.stock < 20 & stocking == false) {
+            stocking = true;
+        }
+        else if (shelf.stock == 20) { stocking = false; }
+
+        if (stocking == true & itemsCarrying == 0)
+        {
+            TargetPallet();
+            //Walks to pallet
+        }
+
+        if (nearPallet == true & stocking == true & itemsCarrying == 0)
+        {
+            GrabStock(stockerCarryAmount);
+        }
+
+        if (stocking == true & itemsCarrying == stockerCarryAmount)
+        {
+            TargetShelf();
+            // he walks to shelf
+        }
+
+        if (nearShelf == true & itemsCarrying == stockerCarryAmount & stocking == true)
+        {
+            AddStock(stockerCarryAmount);
+        }
+
+
     }
 
 
@@ -160,12 +133,8 @@ public class Stocker_Script : MonoBehaviour
     // Simply walks to target. Pretty much always active. Will probably cause conflicts.
     private void WalkToTarget()
     {
-
-        // Calculate distance from target
-        distanceFromTarget = Vector3.Distance(transform.position, target.transform.position);
-
-        // return (do not run / stop running) if on target
-        if (distanceFromTarget <= 0.5f)
+        // stock walking to target when destination reached.
+        if (arrivedAtDestination == true)
             return;
 
         //walk to target
@@ -176,7 +145,43 @@ public class Stocker_Script : MonoBehaviour
 
         // move the GameObject in the direction of the target at the specified speed
         transform.Translate(direction * speed * Time.deltaTime);
+    }
 
+    // Function to determine if stock has arrived at destination
+    public void ArrivedAtDestination()
+    {
+        // Calculate distance from target
+        distanceFromTarget = Vector3.Distance(transform.position, target.transform.position);
+
+        // if he is 0.5 units away from target, stocker has arrived to destination
+        if (distanceFromTarget <= 0.5f)
+            arrivedAtDestination = true;
+        else
+            arrivedAtDestination = false;
+    }
+
+    // Can interact with shelf if near
+    public void NearShelf()
+    {
+        distanceFromShelf = Vector3.Distance(transform.position, shelf.transform.position);
+
+        if (distanceFromShelf <= 0.5f)
+            nearShelf = true;
+        else
+            nearShelf = false;
+
+
+    }
+
+    // Can interact with pallet if near
+    public void NearPallet()
+    {
+        distanceFromPallet = Vector3.Distance(transform.position, pallet.transform.position);
+
+        if (distanceFromPallet <= 0.5f)
+            nearPallet = true;
+        else
+            nearPallet = false;
     }
 
 }
