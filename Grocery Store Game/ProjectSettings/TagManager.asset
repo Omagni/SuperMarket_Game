@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Stocker
   - Pallet
+  - Shelf
   layers:
   - Default
   - TransparentFX
