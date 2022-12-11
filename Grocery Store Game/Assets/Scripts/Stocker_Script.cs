@@ -18,6 +18,13 @@ public class Stocker_Script : MonoBehaviour
     public int itemsOnHand = 0;
     public int ActionWaitTime = 2;
 
+    // Animations
+    public Animator animator;
+    private string currentState;
+    const string IDLE = "Stocker_Idle";
+    const string WALK = "Stocker_Walk";
+
+
                 // Checks
     // Used for WalkToTarget (function)
     public bool arrivedAtDestination = false;
@@ -51,6 +58,8 @@ public class Stocker_Script : MonoBehaviour
     {
         shelf = GameObject.FindGameObjectWithTag("Shelf").GetComponent<Shelf>();
         pallet = GameObject.FindGameObjectWithTag("Pallet").GetComponent<Pallet>();
+
+        animator = GetComponent<Animator>();
     }
 
     void Update()
@@ -166,8 +175,15 @@ public class Stocker_Script : MonoBehaviour
     private void WalkToTarget()
     {
         // Return if target met.
-        if (arrivedAtDestination == true)
+        if (ArrivedAtDestination() == true)
+        {
+            ChangeAnimationState(IDLE);
             return;
+        }
+        else
+        {
+            ChangeAnimationState(WALK);
+        }
 
         //walk to target
         Vector3 direction = target.transform.position - transform.position;
@@ -178,7 +194,7 @@ public class Stocker_Script : MonoBehaviour
     }
 
     // Function to determine if stocker has arrived to his destination. Helps control WalkToTarget
-    public void ArrivedAtDestination()
+    public bool ArrivedAtDestination()
     {
         // Calculate distance from target
         distanceFromTarget = Vector3.Distance(transform.position, target.transform.position);
@@ -188,6 +204,8 @@ public class Stocker_Script : MonoBehaviour
             arrivedAtDestination = true;
         else
             arrivedAtDestination = false;
+
+        return arrivedAtDestination;
     }
 
     // Detects if Stocker is near a Shelf
@@ -210,6 +228,19 @@ public class Stocker_Script : MonoBehaviour
             nearPallet = true;
         else
             nearPallet = false;
+    }
+
+    void ChangeAnimationState(string newState)
+    {
+        // stop the same animation from interrupting itself
+        if (currentState == newState) 
+            return;
+
+        // play the animation
+        animator.Play(newState);
+
+        // reassign the current state
+        currentState = newState;
     }
 
 }

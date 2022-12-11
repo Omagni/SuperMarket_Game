@@ -293,6 +293,7 @@ GameObject:
   - component: {fileID: 218247190}
   - component: {fileID: 218247192}
   - component: {fileID: 218247193}
+  - component: {fileID: 218247194}
   m_Layer: 0
   m_Name: Wagie
   m_TagString: Stocker
@@ -360,7 +361,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 218247189}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -2.6, y: -1.34, z: -0.03973891}
+  m_LocalPosition: {x: -2.7, y: 1.4, z: -0.03973891}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -403,6 +404,7 @@ MonoBehaviour:
   speed: 2
   itemsOnHand: 0
   ActionWaitTime: 2
+  animator: {fileID: 218247194}
   arrivedAtDestination: 0
   nearShelf: 0
   nearPallet: 0
@@ -410,6 +412,26 @@ MonoBehaviour:
   target: {fileID: 0}
   shelf: {fileID: 0}
   pallet: {fileID: 0}
+--- !u!95 &218247194
+Animator:
+  serializedVersion: 4
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 218247189}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: def74a25ba7b6d5418f1b1e9b35b3dea, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0
 --- !u!1 &506878843
 GameObject:
   m_ObjectHideFlags: 0
