@@ -8,6 +8,19 @@ using UnityEngine;
  * This makes it that I can simply reference each shelf: ex. (shelves[0].stock)
  * Or I can have one array of GameObjects. Reference each by (shelfObjects[0].GetComponent<Shelf>().stock)
  * To save space and optimize, i should use the second version.
+ *
+ * Shelf reference : shelvez[shelfIndex].GetComponent<Shelf>().(use function or variable here)
+ * 
+ *
+ * Future ideas:
+ * - Probably need functions for picking which Pallet/Shelf to use
+ * 
+ * - Walk is always active. The function associated is used as a means of getting to a destination. If walking to a specific targt is no longer necessary,
+ *      Stocker should be in a state of not working but patrolling. Can tell him to patrol, organize shelves, or give him specific stocking duties.
+ *      Patrol feature would need to be that he's just traveling around the store.
+ *      
+ * - The future pathing system would be the way he gets to his destination.
+ *
  */
 
 public class Stocker_Script : MonoBehaviour
@@ -26,10 +39,10 @@ public class Stocker_Script : MonoBehaviour
     const string IS_STOCKING = "Stocker_Stocking";
 
     // CHECKS
-    public bool nearTarget = false; // check for near target
-    public bool nearShelf = false; // check for near shelf
-    public bool nearPallet = false; // check for near pallet
-    public bool active = false; // check if Stocker is currently active (working)
+    bool nearTarget = false; // check for near target
+    bool nearShelf = false; // check for near shelf
+    bool nearPallet = false; // check for near pallet
+    bool active = false; // check if Stocker is currently active (working)
     bool isWaiting = false; // if Stocker is compelting an action
 
     // TARGETS
@@ -37,7 +50,8 @@ public class Stocker_Script : MonoBehaviour
     public Pallet pallet; // ceference to current pallet
 
     // ARRAYS
-    GameObject[] shelvez; // used for storing game objects of any type into an array
+    GameObject[] shelves; // Used to target/use all shelves in the scene
+    GameObject[] pallets;
 
     // INDEXES
     private int shelfIndex = 0;
@@ -53,17 +67,14 @@ public class Stocker_Script : MonoBehaviour
 
     private void Start()
     {
-        pallet = GameObject.FindGameObjectWithTag("Pallet").GetComponent<Pallet>();
-        shelvez = GameObject.FindGameObjectsWithTag("Shelf"); // Find game objects of type shelf
-
-        animator = GetComponent<Animator>();
+        //pallet = GameObject.FindGameObjectWithTag("Pallet").GetComponent<Pallet>();
+        shelves = GameObject.FindGameObjectsWithTag("Shelf"); // Find all Shelves in the scene
+        pallets = GameObject.FindGameObjectsWithTag("Pallet"); // Find all Pallets in the scene
+        animator = GetComponent<Animator>(); // Gets self animator
     }
 
     void Update()
     {
-
-        //reference: 
-        // shelvez[shelfIndex].GetComponent<Shelf>().(use function or variable here)
 
         //ALWAYS RUNNING FUNCTIONS:
         // If Stocker has a target, walk to it. (Will always walk to target)
@@ -76,17 +87,17 @@ public class Stocker_Script : MonoBehaviour
 
         // LOGIC:
         // logic for changing shelves. Simple at the moment. If one shelf reaches max stock, go to next.
-        if (shelvez[shelfIndex].GetComponent<Shelf>().stock == stockMax && shelfIndex < shelvez.Length - 1)
+        if (shelves[shelfIndex].GetComponent<Shelf>().stock == stockMax && shelfIndex < shelves.Length - 1)
             NextShelf();
 
         // if stocker is waiting (working/loading/unloading) do not try to do anything else.
         if (isWaiting == false)
         {
             // if stocker finds a shelf that is not at full capacity, start working
-            if (shelvez[shelfIndex].GetComponent<Shelf>().stock < stockMax & active == false)
+            if (shelves[shelfIndex].GetComponent<Shelf>().stock < stockMax & active == false)
                 active = true;
             // if stock is full: do not start stocking
-            else if (shelvez[shelfIndex].GetComponent<Shelf>().stock == stockMax)
+            else if (shelves[shelfIndex].GetComponent<Shelf>().stock == stockMax)
                 active = false;
 
             // if Stocker is stocking, and he has no items: Go to Pallet
@@ -111,18 +122,24 @@ public class Stocker_Script : MonoBehaviour
 
     // Target Shelf
     private void TargetShelf() 
-    { target = shelvez[shelfIndex]; }
+    { target = shelves[shelfIndex]; }
 
     // Target next shelf
     private void NextShelf()
     {
-        shelfIndex += 1;
-        TargetShelf();
+        shelfIndex += 1; // increment to next Shelf index
+        TargetShelf(); // Change target to next Shelf
     }
 
     // Target Pallet
     private void TargetPallet()
-    {target = GameObject.FindGameObjectWithTag("Pallet");}
+    { target = pallets[palletIndex]; }
+
+    private void NexTpallet()
+    {
+        palletIndex += 1; // increment to next Pallet index
+        TargetPallet(); // Change target to next Pallet
+    }
 
     // Remove stock from Pallets (includes wait time)
     public IEnumerator GrabStock(int amount)
@@ -133,7 +150,7 @@ public class Stocker_Script : MonoBehaviour
 
         yield return new WaitForSeconds(actionWaitTime); // action wait time
         itemsOnHand += amount; // increment stockers items on hand
-        pallet.RemoveStock(amount); // decrement current Pallets stock count
+        pallets[palletIndex].GetComponent<Pallet>().RemoveStock(amount); // decrement current Pallets stock count
         isWaiting = false;
     }
 
@@ -146,7 +163,7 @@ public class Stocker_Script : MonoBehaviour
 
         yield return new WaitForSeconds(actionWaitTime); // action wait time
         itemsOnHand -= amount; // Decrement stockers items on hand
-        shelvez[shelfIndex].GetComponent<Shelf>().AddStock(amount); // decrement current Shelfs stock count
+        shelves[shelfIndex].GetComponent<Shelf>().AddStock(amount); // decrement current Shelfs stock count
         isWaiting = false;
     }
 
@@ -185,7 +202,7 @@ public class Stocker_Script : MonoBehaviour
     // Detects if Stocker is near a Shelf - ALWAYS RUNNING
     public void NearShelf()
     {
-        distanceFromShelf = Vector3.Distance(transform.position, shelvez[shelfIndex].GetComponent<Shelf>().transform.position);
+        distanceFromShelf = Vector3.Distance(transform.position, shelves[shelfIndex].GetComponent<Shelf>().transform.position);
 
         // if he is 0.5 units away from a Shelf, stocker has arrived to destination
         if (distanceFromShelf <= 0.5f)
@@ -197,7 +214,7 @@ public class Stocker_Script : MonoBehaviour
     // Detects if Stocker is near a Pallet - ALWAYS RUNNING
     public void NearPallet()
     {
-        distanceFromPallet = Vector3.Distance(transform.position, pallet.transform.position);
+        distanceFromPallet = Vector3.Distance(transform.position, pallets[palletIndex].transform.position);
 
         // if he is 0.5 units away from a Pallet, stocker has arrived to destination
         if (distanceFromPallet <= 0.5f)
